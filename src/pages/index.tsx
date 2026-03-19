@@ -7,7 +7,7 @@ import Link from "next/link";
 import Navbar from "@/components/general/Navbar";
 import { Button } from "@/components/ui/button";
 import { productApi, type Product } from "@/lib/product-api";
-import { ShoppingCart, ChevronRight, Star, MapPin, MoreHorizontal } from "lucide-react";
+import { ShoppingCart, Star, MapPin, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 function formatPrice(price: number): string {
@@ -47,7 +47,7 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
           </p>
           <p className="text-zinc-500 text-xs mt-1">Gratis ongkir</p>
           <div className="flex items-center gap-1.5 mt-2 text-zinc-500 text-xs">
-            <Star className="size-3.5 fill-black stroke-black" />
+            <Star className="size-3.5 fill-amber-400 stroke-amber-400" />
             <span>{rating}</span>
             <span className="text-zinc-300">|</span>
             <span>{sold} terjual</span>
@@ -70,11 +70,11 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
           </div>
         </div>
       </Link>
-      <div className="p-3 pt-0 flex gap-2">
+      <div className="p-3 pt-0">
         <Button
           variant="outline"
           size="sm"
-          className="flex-1 border-black text-black hover:bg-zinc-100"
+          className="w-full border-black text-black hover:bg-zinc-100"
           onClick={(e) => {
             e.preventDefault();
             onAddToCart(product);
@@ -82,16 +82,6 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
         >
           <ShoppingCart className="mr-1.5 size-4" />
           Keranjang
-        </Button>
-        <Button
-          size="sm"
-          className="flex-1 bg-black text-white hover:bg-zinc-800"
-          asChild
-        >
-          <Link href={`/products/${product.id}`}>
-            Detail
-            <ChevronRight className="size-4" />
-          </Link>
         </Button>
       </div>
     </div>
