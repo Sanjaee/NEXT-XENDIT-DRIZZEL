@@ -39,6 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           currency: tx.currency,
           channel_code: tx.channelCode,
           checkout_url: tx.checkoutUrl,
+          createdAt: tx.createdAt,
         });
       } catch (e) {
         console.error("Xendit sync:", e);
@@ -52,6 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       currency: tx.currency,
       channel_code: tx.channelCode,
       checkout_url: tx.checkoutUrl,
+      createdAt: tx.createdAt,
     });
   } catch (error) {
     console.error("Status check error:", error);
