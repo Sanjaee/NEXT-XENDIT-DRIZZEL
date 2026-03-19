@@ -7,18 +7,15 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "picsum.photos", pathname: "/**" },
-    ],
-    domains: [
-      "res.cloudinary.com",
-      "i.pinimg.com",
-      "via.placeholder.com",
-      "axiomtrading.sfo3.cdn.digitaloceanspaces.com",
-      "localhost",
-      "localhost:5000",
-      "avatars.githubusercontent.com",
-      "lh3.googleusercontent.com", // Google profile pictures
-      "googleusercontent.com", // Other Google image domains
-      "picsum.photos",
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
+      { protocol: "https", hostname: "i.pinimg.com", pathname: "/**" },
+      { protocol: "https", hostname: "via.placeholder.com", pathname: "/**" },
+      { protocol: "https", hostname: "axiomtrading.sfo3.cdn.digitaloceanspaces.com", pathname: "/**" },
+      { protocol: "http", hostname: "localhost", pathname: "/**" },
+      { protocol: "http", hostname: "avatars.githubusercontent.com", pathname: "/**" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com", pathname: "/**" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com", pathname: "/**" },
+      { protocol: "https", hostname: "googleusercontent.com", pathname: "/**" },
     ],
   },
 };
