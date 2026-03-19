@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,7 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, ArrowLeft } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft, Upload } from "lucide-react";
 
 type Product = {
   id: string;
@@ -50,8 +50,9 @@ export default function AdminProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState({ name: "", description: "", price: "", imageUrl: "" });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  const fetchProducts = () => {
+  const fetchProducts = useCallback(() => {
     fetch("/api/admin/products", { credentials: "include" })
       .then((r) => {
         if (r.status === 403) router.replace("/");
@@ -61,11 +62,11 @@ export default function AdminProductsPage() {
         setProducts(Array.isArray(data) ? data : []);
       })
       .finally(() => setLoading(false));
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchProducts();
-  }, [router]);
+  }, [fetchProducts]);
 
   const openCreate = () => {
     setEditing(null);
@@ -112,6 +113,33 @@ export default function AdminProductsPage() {
       }
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith("image/")) return;
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      const dataUri = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ image: dataUri }),
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setForm((f) => ({ ...f, imageUrl: data.url }));
+      }
+    } finally {
+      setUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -248,12 +276,42 @@ export default function AdminProductsPage() {
               />
             </div>
             <div>
-              <Label>URL Gambar</Label>
-              <Input
-                value={form.imageUrl}
-                onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
-                placeholder="https://..."
-              />
+              <Label>Gambar Produk</Label>
+              <div className="flex gap-2 items-center flex-wrap">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                  />
+                  <Button type="button" variant="outline" size="sm" disabled={uploading} asChild>
+                    <span>
+                      <Upload className="mr-2 h-4 w-4 inline" />
+                      {uploading ? "Mengunggah..." : "Unggah ke Cloudinary"}
+                    </span>
+                  </Button>
+                </label>
+                <span className="text-sm text-muted-foreground">atau</span>
+                <Input
+                  value={form.imageUrl}
+                  onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                  placeholder="Tempel URL gambar"
+                  className="flex-1 min-w-[200px]"
+                />
+              </div>
+              {form.imageUrl && (
+                <div className="mt-2 relative w-20 h-20 rounded overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                  <Image
+                    src={form.imageUrl}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
