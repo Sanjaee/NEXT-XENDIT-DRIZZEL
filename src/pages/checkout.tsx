@@ -31,13 +31,6 @@ const SHIPPING_OPTIONS = [
   { id: "express", name: "Express", cost: 25000, estimate: "1-2 hari" },
 ];
 
-const PAYMENT_METHODS = [
-  { id: "mandiri", name: "Mandiri" },
-  { id: "bca", name: "BCA" },
-  { id: "bri", name: "BRI" },
-  { id: "gopay", name: "GoPay" },
-];
-
 export default function CheckoutPage() {
   const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
@@ -48,7 +41,6 @@ export default function CheckoutPage() {
   const [protectionDiscount, setProtectionDiscount] = useState(false);
   const [shippingInsurance, setShippingInsurance] = useState(false);
   const [selectedShipping, setSelectedShipping] = useState(SHIPPING_OPTIONS[0]);
-  const [selectedPayment, setSelectedPayment] = useState(PAYMENT_METHODS[0].id);
   const [showSummary, setShowSummary] = useState(false);
 
   useEffect(() => {
@@ -294,37 +286,6 @@ export default function CheckoutPage() {
             {/* Right Column - Sidebar */}
             <div className="lg:col-span-1 mt-6 lg:mt-0">
               <div className="lg:sticky lg:top-24 space-y-4">
-                {/* Payment Method */}
-                <section className="bg-white rounded-lg border border-zinc-200 p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="font-semibold text-black">Metode Pembayaran</p>
-                    <button
-                      type="button"
-                      className="text-sm font-medium text-black hover:underline"
-                    >
-                      Lihat Semua
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {PAYMENT_METHODS.map((pm) => (
-                      <label
-                        key={pm.id}
-                        className="flex items-center justify-between p-2 rounded border border-zinc-200 cursor-pointer hover:bg-zinc-50 has-[:checked]:border-black has-[:checked]:bg-zinc-50"
-                      >
-                        <span className="text-sm font-medium text-black">{pm.name}</span>
-                        <input
-                          type="radio"
-                          name="payment"
-                          value={pm.id}
-                          checked={selectedPayment === pm.id}
-                          onChange={() => setSelectedPayment(pm.id)}
-                          className="size-4"
-                        />
-                      </label>
-                    ))}
-                  </div>
-                </section>
-
                 {/* Promo */}
                 <button
                   type="button"
