@@ -96,7 +96,7 @@ export const LoginForm = () => {
           title: "✅ Login Berhasil!",
           description: "Selamat datang!",
         });
-        router.push(callbackUrl);
+        router.push(getCallbackUrl());
       } else {
         // Handle specific errors
         let errorMessage = "Email atau password salah. Silakan coba lagi.";
@@ -116,7 +116,7 @@ export const LoginForm = () => {
             sessionStorage.setItem("registration_email", formData.email);
 
             // Redirect to verify-otp page for OTP input
-            router.push(`/auth/verify-otp?email=${encodeURIComponent(formData.email)}&callbackUrl=${encodeURIComponent(callbackUrl)}`);
+            router.push(`/auth/verify-otp?email=${encodeURIComponent(formData.email)}&callbackUrl=${encodeURIComponent(getCallbackUrl())}`);
             return;
           }
 
@@ -158,7 +158,7 @@ export const LoginForm = () => {
     setGoogleLoading(true);
     try {
       const result = await signIn("google", {
-        callbackUrl: callbackUrl,
+        callbackUrl: getCallbackUrl(),
         redirect: false,
       });
 
@@ -191,7 +191,7 @@ export const LoginForm = () => {
         });
       } else if (result?.ok) {
         // Success - redirect to callback URL
-        router.push(callbackUrl);
+        router.push(getCallbackUrl());
       }
     } catch (error) {
       console.error("Google sign-in error:", error);
