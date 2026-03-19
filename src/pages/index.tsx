@@ -6,19 +6,96 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/general/Navbar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardTitle,
-} from "@/components/ui/card";
 import { productApi, type Product } from "@/lib/product-api";
-import { ShoppingCart, ChevronRight } from "lucide-react";
+import { ShoppingCart, ChevronRight, Star, MapPin, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat("id-ID").format(price);
+}
+
+function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: (p: Product) => void }) {
+  const rating = 4.9;
+  const sold = "50+";
+  const location = "Kota Jakarta";
+  const discount = (product.id.charCodeAt(0) % 2) === 0 ? "19%" : null;
+
+  return (
+    <div className="bg-white border border-zinc-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow flex flex-col">
+      <Link href={`/products/${product.id}`} className="block flex-1">
+        <div className="relative aspect-square bg-zinc-50 overflow-hidden">
+          <Image
+            src={product.imageUrl || "/placeholder.png"}
+            alt={product.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
+            unoptimized={product.imageUrl?.includes("picsum")}
+          />
+          {discount && (
+            <span className="absolute top-2 left-2 bg-black text-white text-xs font-semibold px-2 py-0.5 rounded">
+              {discount}
+            </span>
+          )}
+        </div>
+        <div className="p-3 flex-1 flex flex-col min-h-0">
+          <h3 className="text-black font-medium text-sm line-clamp-2 min-h-10">
+            {product.name}
+          </h3>
+          <p className="text-black font-bold text-base mt-1">
+            Rp{formatPrice(product.price)}
+          </p>
+          <p className="text-zinc-500 text-xs mt-1">Gratis ongkir</p>
+          <div className="flex items-center gap-1.5 mt-2 text-zinc-500 text-xs">
+            <Star className="size-3.5 fill-black stroke-black" />
+            <span>{rating}</span>
+            <span className="text-zinc-300">|</span>
+            <span>{sold} terjual</span>
+          </div>
+          <div className="flex items-center justify-between mt-2 text-zinc-500 text-xs">
+            <span className="flex items-center gap-1">
+              <MapPin className="size-3" />
+              {location}
+            </span>
+            <button
+              type="button"
+              className="p-1 hover:bg-zinc-100 rounded"
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+              aria-label="Menu"
+            >
+              <MoreHorizontal className="size-4" />
+            </button>
+          </div>
+        </div>
+      </Link>
+      <div className="p-3 pt-0 flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 border-black text-black hover:bg-zinc-100"
+          onClick={(e) => {
+            e.preventDefault();
+            onAddToCart(product);
+          }}
+        >
+          <ShoppingCart className="mr-1.5 size-4" />
+          Keranjang
+        </Button>
+        <Button
+          size="sm"
+          className="flex-1 bg-black text-white hover:bg-zinc-800"
+          asChild
+        >
+          <Link href={`/products/${product.id}`}>
+            Detail
+            <ChevronRight className="size-4" />
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 export default function Home() {
@@ -58,94 +135,52 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen flex flex-col bg-zinc-50">
       <Navbar />
-      <main className="flex-1 pt-20 px-4 pb-24 max-w-6xl mx-auto w-full">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Produk
-          </h1>
-          <p className="text-zinc-600 dark:text-zinc-400 mt-1">
-            Demo Payment Gateway Xendit - Pilih produk dan lanjut ke checkout
-          </p>
+      <main className="flex-1 pt-20 px-4 pb-24">
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-black">Daftar Produk</h1>
+            <p className="text-zinc-500 mt-1 text-sm">
+              Pilih produk dan lanjut ke checkout
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                <div key={i} className="bg-white border border-zinc-200 rounded-lg overflow-hidden animate-pulse">
+                  <div className="aspect-square bg-zinc-200" />
+                  <div className="p-3 space-y-2">
+                    <div className="h-4 bg-zinc-200 rounded w-full" />
+                    <div className="h-4 bg-zinc-200 rounded w-2/3" />
+                    <div className="h-6 bg-zinc-200 rounded w-1/2" />
+                    <div className="h-3 bg-zinc-200 rounded w-3/4" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {products.map((p) => (
+                <ProductCard key={p.id} product={p} onAddToCart={addToCart} />
+              ))}
+            </div>
+          )}
         </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Card key={i} className="overflow-hidden animate-pulse">
-                <div className="aspect-video bg-zinc-200 dark:bg-zinc-800" />
-                <CardContent className="pt-4">
-                  <div className="h-5 bg-zinc-200 dark:bg-zinc-800 rounded w-3/4 mb-2" />
-                  <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-full" />
-                  <div className="h-6 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3 mt-2" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((p) => (
-              <Card
-                key={p.id}
-                className="overflow-hidden group hover:shadow-lg transition-shadow"
-              >
-                <Link href={`/products/${p.id}`} className="block">
-                  <div className="aspect-video relative bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
-                    <Image
-                      src={p.imageUrl || "/placeholder.png"}
-                      alt={p.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      unoptimized={p.imageUrl?.includes("picsum")}
-                    />
-                  </div>
-                </Link>
-                <CardContent className="pt-4">
-                  <Link href={`/products/${p.id}`}>
-                    <CardTitle className="line-clamp-1 hover:text-primary">
-                      {p.name}
-                    </CardTitle>
-                  </Link>
-                  <CardDescription className="line-clamp-2 mt-1">
-                    {p.description || "-"}
-                  </CardDescription>
-                  <p className="font-semibold text-lg mt-2">
-                    Rp {formatPrice(p.price)}
-                  </p>
-                </CardContent>
-                <CardFooter className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => addToCart(p)}
-                  >
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    Tambah ke keranjang
-                  </Button>
-                  <Button size="sm" asChild>
-                    <Link href={`/products/${p.id}`}>
-                      Detail <ChevronRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {/* Cart bar - sama seperti Go templates */}
         {cart.length > 0 && (
           <div
-            className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-40 px-4 py-3 flex items-center justify-between"
+            className="fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 shadow-lg z-40 px-4 py-3 flex items-center justify-between"
             data-testid="cart-bar"
           >
-            <span className="font-medium">
+            <span className="font-medium text-black">
               {totalItems} item - Rp {formatPrice(totalAmount)}
             </span>
-            <Button onClick={goCheckout}>
+            <Button
+              onClick={goCheckout}
+              className="bg-black text-white hover:bg-zinc-800"
+            >
               <ShoppingCart className="mr-2 h-4 w-4" />
               Lanjut Checkout
             </Button>
