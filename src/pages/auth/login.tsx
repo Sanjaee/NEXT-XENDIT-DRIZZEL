@@ -52,14 +52,15 @@ const LoginPage = () => {
     const checkSession = async () => {
       const session = await getSession();
       if (session) {
-        // Get callback URL from query params or default to dashboard
         const callbackUrl =
-          (router.query.callbackUrl as string) || "/";
+          (router.query.callbackUrl as string) ||
+          (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("callbackUrl") : null) ||
+          "/";
         router.push(callbackUrl);
       }
     };
     checkSession();
-  }, [router]);
+  }, [router.query.callbackUrl]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative">

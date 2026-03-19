@@ -23,8 +23,15 @@ interface LoginFormData {
 export const LoginForm = () => {
   const router = useRouter();
 
-  // Get callback URL from query params or default to dashboard
-  const callbackUrl = (router.query.callbackUrl as string) || "/";
+  // Get callback URL - pakai URL langsung agar tidak tergantung router.query (bisa kosong saat hydrate)
+  const getCallbackUrl = () => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const cb = params.get("callbackUrl");
+      if (cb) return cb;
+    }
+    return (router.query.callbackUrl as string) || "/";
+  };
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
