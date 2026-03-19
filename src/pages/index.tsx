@@ -103,7 +103,7 @@ export default function Home() {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState<{ id: string; name: string; price: number; qty: number }[]>([]);
+  const [cart, setCart] = useState<{ id: string; name: string; price: number; qty: number; imageUrl?: string | null }[]>([]);
 
   useEffect(() => {
     productApi.listProducts().then((data) => {
@@ -116,9 +116,11 @@ export default function Home() {
     const existing = cart.find((i) => i.id === p.id);
     let next: typeof cart;
     if (existing) {
-      next = cart.map((i) => (i.id === p.id ? { ...i, qty: i.qty + 1 } : i));
+      next = cart.map((i) =>
+        i.id === p.id ? { ...i, qty: i.qty + 1, imageUrl: i.imageUrl ?? p.imageUrl } : i
+      );
     } else {
-      next = [...cart, { id: p.id, name: p.name, price: p.price, qty: 1 }];
+      next = [...cart, { id: p.id, name: p.name, price: p.price, qty: 1, imageUrl: p.imageUrl }];
     }
     setCart(next);
     toast({ title: "Ditambah ke keranjang", description: `${p.name} (${(existing?.qty ?? 0) + 1} item)` });
@@ -147,7 +149,7 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5  gap-4">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
                 <div key={i} className="bg-white border border-zinc-200 rounded-lg overflow-hidden animate-pulse">
                   <div className="aspect-square bg-zinc-200" />
