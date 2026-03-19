@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: next_xendit_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: next_xendit
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d next_xendit"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    container_name: next_xendit_app
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    # Load env vars from project .env
+    env_file:
+      - .env
+    environment:
+      # IMPORTANT: jangan pakai localhost di dalam container.
+      # Host Postgres untuk app adalah nama service: `db`
+      DATABASE_URL: postgres://postgres:postgres@db:5432/next_xendit
+
+      # NextAuth butuh ini di production (digunakan untuk callback/redirect)
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: change-me-in-prod
+
+      NODE_ENV: production
+    # First push schema to DB (no migration files needed), then start app
+    command: sh -c "npx drizzle-kit push && npm run start"
+
+volumes:
+  db_data:
+
